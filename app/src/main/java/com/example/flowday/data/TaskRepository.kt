@@ -7,6 +7,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
 class TaskRepository @Inject constructor(
@@ -56,8 +58,10 @@ class TaskRepository @Inject constructor(
         }
     }
     
+
+
     // Manual Sync function called on Login
-    suspend fun syncTasksFromFirestore() {
+    suspend fun syncTasksFromFirestore() = withContext(Dispatchers.IO) {
         auth.currentUser?.let { user ->
             try {
                 val snapshot = firestore.collection("users").document(user.uid)
@@ -65,7 +69,7 @@ class TaskRepository @Inject constructor(
                 
                 val remoteTasks = snapshot.toObjects(Task::class.java)
                 for (task in remoteTasks) {
-                    taskDao.insertTask(task)
+                taskDao.insertTask(task)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
