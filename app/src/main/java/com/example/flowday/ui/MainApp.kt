@@ -180,12 +180,21 @@ fun DrawerContent(
              Button(
                 onClick = { 
                     scope.launch {
-                        val signInIntentSender = googleAuthClient.signIn()
-                        launcher.launch(
-                            androidx.activity.result.IntentSenderRequest.Builder(
-                                signInIntentSender.intentSender ?: return@launch
-                            ).build()
-                        )
+                        try {
+                            val signInIntentSender = googleAuthClient.signIn()
+                            if (signInIntentSender.intentSender != null) {
+                                launcher.launch(
+                                    androidx.activity.result.IntentSenderRequest.Builder(
+                                        signInIntentSender.intentSender
+                                    ).build()
+                                )
+                            } else {
+                                android.widget.Toast.makeText(context, "Google Sign In Failed", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            android.widget.Toast.makeText(context, "Error: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

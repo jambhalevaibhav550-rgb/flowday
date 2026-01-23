@@ -48,6 +48,15 @@ class TaskViewModel @Inject constructor(
     
     // Existing code...
 
+    private val _selectedDate = kotlinx.coroutines.flow.MutableStateFlow(System.currentTimeMillis())
+    val selectedDate = _selectedDate.asStateFlow()
+
+    fun setSelectedDate(date: Long) {
+        _selectedDate.value = date
+    }
+
+    // Existing code...
+
     val tasks: StateFlow<List<Task>> = repository.allTasks
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -76,7 +85,7 @@ class TaskViewModel @Inject constructor(
         viewModelScope.launch {
             val task = Task(
                 name = name,
-                date = System.currentTimeMillis(), // Creation date
+                date = _selectedDate.value, // Use selected date
                 validity = if (recurrenceType == "NONE") "One Time" else recurrenceType, // Simple validity text
                 executionTime = executionTime,
                 recurrenceType = recurrenceType,

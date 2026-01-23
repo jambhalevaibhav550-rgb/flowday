@@ -35,14 +35,19 @@ import androidx.compose.foundation.combinedClickable
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
 fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
+    val selectedDate by viewModel.selectedDate.collectAsState()
     
     // Date Logic
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val displayFormat = remember { SimpleDateFormat("EEE\ndd", Locale.getDefault()) }
     val todayString = remember { dateFormat.format(Date()) }
-    var selectedDateString by remember { mutableStateOf(todayString) }
+    
+    // Convert selectedDate (Long) to String for grouping/filtering key
+    val selectedDateString = remember(selectedDate) { dateFormat.format(Date(selectedDate)) }
     
     // Group tasks by date
     val groupedTasks = remember(tasks) {
@@ -124,7 +129,11 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
                                 if (isSelected) Color(0xFF2B6CEE) else Color.White,
                                 RoundedCornerShape(12.dp)
                             )
-                            .clickable { selectedDateString = dateString }
+                            .clickable { 
+                                if (dateObj != null) {
+                                    viewModel.setSelectedDate(dateObj.time)
+                                }
+                            }
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
