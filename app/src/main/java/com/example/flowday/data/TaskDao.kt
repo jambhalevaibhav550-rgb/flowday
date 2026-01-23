@@ -17,4 +17,7 @@ interface TaskDao {
 
     @Delete
     suspend fun deleteTask(task: Task)
+
+    @Query("UPDATE tasks SET status = 2 WHERE status = 0 AND date < :timestamp")
+    suspend fun markPastTasksFailed(timestamp: Long)
 }

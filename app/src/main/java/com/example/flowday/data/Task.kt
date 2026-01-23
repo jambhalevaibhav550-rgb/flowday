@@ -10,7 +10,8 @@ data class Task(
     val date: Long, // Creation timestamp
     val validity: String, // Description text (e.g., "Valid until...")
     val executionTime: Long, // Time of day (HH:mm) stored as timestamp/epoch
-    val isCompleted: Boolean = false,
+    val status: Int = 0, // 0 = Active, 1 = Completed, 2 = Failed, 3 = CarryForward
+    val userId: String? = null, // For Firebase syncing
     
     // New fields for recurrence logic
     val recurrenceType: String = "NONE", // NONE, DAILY, WEEKLY, MONTHLY

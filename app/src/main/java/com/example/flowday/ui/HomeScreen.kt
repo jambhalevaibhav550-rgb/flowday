@@ -27,12 +27,41 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
 fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     
-    // State variables for Task Manager logic
+    // Date Logic
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val displayFormat = remember { SimpleDateFormat("EEE\ndd", Locale.getDefault()) }
+    val todayString = remember { dateFormat.format(Date()) }
+    var selectedDateString by remember { mutableStateOf(todayString) }
+    
+    // Group tasks by date
+    val groupedTasks = remember(tasks) {
+        tasks.groupBy { dateFormat.format(Date(it.date)) }
+    }
+    
+    // Get unique dates (sorted)
+    val availableDates = remember(groupedTasks) {
+        groupedTasks.keys.sorted().ifEmpty { listOf(todayString) }
+    }
+
+    // Filter tasks for selected date
+    val displayedTasks = remember(groupedTasks, selectedDateString) {
+        groupedTasks[selectedDateString] ?: emptyList()
+    }
+
+    // Compute Progress for TODAY
+    val todayTasks = remember(groupedTasks, todayString) {
+        groupedTasks[todayString] ?: emptyList()
+    }
+    val todayTotal = todayTasks.size
+    val todayCompleted = todayTasks.count { it.status == 1 } // 1 = Completed
+    val progress = if (todayTotal > 0) todayCompleted.toFloat() / todayTotal else 0f
+    
     var showAddDialog by remember { mutableStateOf(false) }
-    val dateFormatter = remember { SimpleDateFormat("MMMM, dd", Locale.getDefault()) }
 
     Scaffold(
         topBar = {
@@ -66,62 +95,74 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            item {
-                Column(modifier = Modifier.padding(top = 24.dp)) {
-                    Text(
-                        text = dateFormatter.format(Date()),
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF101622)
-                    )
-                    Text(
-                        text = "Good morning! You have ${tasks.size} tasks today.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+            // Timeline
+            androidx.compose.foundation.lazy.LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(availableDates) { dateString ->
+                    val isSelected = dateString == selectedDateString
+                    val dateObj = try { dateFormat.parse(dateString) } catch(e: Exception) { Date() }
+                    
+                    Column(
+                        modifier = Modifier
+                            .background(
+                                if (isSelected) Color(0xFF2B6CEE) else Color.White,
+                                RoundedCornerShape(12.dp)
+                            )
+                            .clickable { selectedDateString = dateString }
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = displayFormat.format(dateObj ?: Date()),
+                            color = if (isSelected) Color.White else Color.Gray,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
-            
-            item { DailyGoalCard() }
-            
-            item {
-                Column {
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                // Progress Ring Section
+                item { 
+                     DailyGoalCard(progress = progress, completed = todayCompleted, total = todayTotal)
+                }
+                
+                item {
                     Text(
-                        text = "Key Metrics",
+                        text = if (selectedDateString == todayString) "Today's Tasks" else "Tasks for $selectedDateString",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF101622)
                     )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        MetricCard("Steps", "8,432", Color(0xFF10B981), modifier = Modifier.weight(1f))
-                        MetricCard("Active", "45 min", Color(0xFFF59E0B), modifier = Modifier.weight(1f))
-                    }
                 }
-            }
-            
-            item {
-                Text(
-                    text = "Next Event",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF101622)
-                )
-            }
-            
-            items(tasks) { task ->
-                TaskItem(task)
+                
+                items(displayedTasks) { task ->
+                    TaskItem(
+                        task = task,
+                        onDelete = { viewModel.deleteTask(task) },
+                        onEdit = { /* Implement Edit Logic */ },
+                        onDone = { viewModel.updateTaskStatus(task, 1) },
+                        onFail = { viewModel.updateTaskStatus(task, 2) },
+                        onCarryForward = { viewModel.carryForwardTask(task) }
+                    )
+                }
             }
         }
     }
@@ -138,110 +179,179 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
 }
 
 @Composable
-fun DailyGoalCard() {
+fun DailyGoalCard(progress: Float, completed: Int, total: Int) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-            Box(
-                modifier = Modifier
-                    .width(120.dp)
-                    .fillMaxHeight()
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color(0xFF2B6CEE), Color(0xFF1E4BB3))
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("85%", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            }
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text("Daily Goal", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Activity Ring", color = Color.Gray)
-                Text("You are almost there!", color = Color.Gray, fontSize = 12.sp)
-                Button(
-                    onClick = { },
-                    modifier = Modifier.align(Alignment.End),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B6CEE)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Details")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MetricCard(title: String, value: String, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(color.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                // Simplified icon
-                Box(modifier = Modifier.size(20.dp).background(color, RoundedCornerShape(4.dp)))
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(title, fontWeight = FontWeight.Medium, color = Color.Gray)
-            Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        }
-    }
-}
-
-@Composable
-fun TaskItem(task: Task) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier
-                    .background(Color(0xFFF1F5F9), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(80.dp)
             ) {
-                Text(
-                    SimpleDateFormat("MMM", Locale.getDefault()).format(Date(task.date)).uppercase(),
+                CircularProgressIndicator(
+                    progress = 1f,
+                    color = Color.LightGray.copy(alpha = 0.3f),
+                    modifier = Modifier.fillMaxSize(),
+                    strokeWidth = 8.dp
+                )
+                CircularProgressIndicator(
+                    progress = progress,
                     color = Color(0xFF2B6CEE),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    modifier = Modifier.fillMaxSize(),
+                    strokeWidth = 8.dp
                 )
                 Text(
-                    SimpleDateFormat("dd", Locale.getDefault()).format(Date(task.date)),
+                    text = "${(progress * 100).toInt()}%",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 16.sp
                 )
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(task.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(
-                    "${SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(task.executionTime))} • ${task.validity}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text("Daily Progress", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("$completed / $total Tasks Completed", color = Color.Gray)
             }
         }
+    }
+}
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+fun TaskItem(
+    task: Task,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+    onDone: () -> Unit,
+    onFail: () -> Unit,
+    onCarryForward: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+    var showFailDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    val cardColor = when (task.status) {
+        1 -> Color(0xFFE8F5E9) // Green (Success)
+        2 -> Color(0xFFFFEBEE) // Red (Failed)
+        3 -> Color(0xFFFFFDE7) // Yellow (CarryForward)
+        else -> Color.White // Active
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = { },
+                onLongClick = { showMenu = true }
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = cardColor)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                 Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        task.name, 
+                        fontWeight = FontWeight.Bold, 
+                        fontSize = 16.sp,
+                        style = if (task.status == 1) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
+                    )
+                    Text(
+                        "${SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(task.executionTime))} • ${task.validity}",
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                }
+                
+                // Status Icon or Buttons
+                 if (task.status == 0) {
+                     Row {
+                         IconButton(onClick = onDone) {
+                             Icon(Icons.Default.CheckCircle, contentDescription = "Done", tint = Color(0xFF4CAF50))
+                         }
+                         IconButton(onClick = { showFailDialog = true }) {
+                             Icon(Icons.Default.Cancel, contentDescription = "Fail", tint = Color(0xFFF44336))
+                         }
+                     }
+                 } else {
+                     when(task.status) {
+                         1 -> Icon(Icons.Default.Check, "Completed", tint = Color(0xFF4CAF50))
+                         2 -> Icon(Icons.Default.Close, "Failed", tint = Color(0xFFF44336))
+                         3 -> Icon(Icons.Default.Refresh, "Carried Forward", tint = Color(0xFFFFC107))
+                     }
+                 }
+                
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = { 
+                            onEdit()
+                            showMenu = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = { 
+                            showDeleteConfirm = true
+                            showMenu = false 
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showFailDialog) {
+        AlertDialog(
+            onDismissRequest = { showFailDialog = false },
+            title = { Text("Task Failed?") },
+            text = { Text("Do you want to mark this task as Failed or Carry it Forward to tomorrow?") },
+            confirmButton = {
+                TextButton(onClick = { 
+                    onFail()
+                    showFailDialog = false
+                }) {
+                    Text("Mark Failed", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    onCarryForward()
+                    showFailDialog = false
+                }) {
+                    Text("Carry Forward")
+                }
+            }
+        )
+    }
+    
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete Task") },
+            text = { Text("Are you sure you want to delete this task?") },
+            confirmButton = {
+                TextButton(onClick = { 
+                    onDelete()
+                    showDeleteConfirm = false
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
