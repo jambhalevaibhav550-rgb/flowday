@@ -26,7 +26,7 @@ jobs:
       env:
         GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       run: |
-        python -c "import base64, os, sys; s = os.environ.get('GOOGLE_SERVICES_JSON', '').replace('\n', '').replace('\r', '').strip(); print(f'Secret length: {len(s)}'); FileExistsError if not s else None; open('app/google-services.json', 'wb').write(base64.b64decode(s)); print('File created successfully.');"
+        python -c "import base64, os, sys; s = os.environ.get('GOOGLE_SERVICES_JSON', '').replace('\n', '').replace('\r', '').strip(); missing_padding = len(s) % 4; s += '=' * (4 - missing_padding) if missing_padding else ''; print(f'Secret length (padded): {len(s)}'); open('app/google-services.json', 'wb').write(base64.b64decode(s)); print('File created successfully.');"
         echo "Verifying file content (first 5 lines):"
         head -n 5 app/google-services.json
 
