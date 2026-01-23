@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monthly Calendar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white">
+<div class="relative flex h-screen w-full flex-col max-w-[430px] mx-auto overflow-hidden border-x border-gray-200 dark:border-gray-800">
+<!-- Top App Bar -->
+<header class="flex items-center bg-background-light dark:bg-background-dark px-4 py-4 justify-between z-10">
+<div class="flex size-10 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer text-slate-700 dark:text-white">menu</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">September 2023</h2>
+<div class="flex size-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+</header>
+<!-- Calendar Picker Section -->
+<main class="flex-1 overflow-y-auto pb-20">
+<div class="p-4 pt-0">
+<!-- Day Labels -->
+<div class="grid grid-cols-7 mb-2">
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">S</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">M</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">T</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">W</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">T</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">F</p>
+<p class="text-slate-400 dark:text-slate-500 text-[12px] font-bold uppercase tracking-wider flex h-10 w-full items-center justify-center">S</p>
+</div>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-y-1">
+<!-- Previous Month Days -->
+<button class="h-14 w-full text-slate-300 dark:text-slate-700 text-sm font-medium flex flex-col items-center justify-center">27</button>
+<button class="h-14 w-full text-slate-300 dark:text-slate-700 text-sm font-medium flex flex-col items-center justify-center">28</button>
+<button class="h-14 w-full text-slate-300 dark:text-slate-700 text-sm font-medium flex flex-col items-center justify-center">29</button>
+<button class="h-14 w-full text-slate-300 dark:text-slate-700 text-sm font-medium flex flex-col items-center justify-center">30</button>
+<button class="h-14 w-full text-slate-300 dark:text-slate-700 text-sm font-medium flex flex-col items-center justify-center">31</button>
+<!-- Current Month -->
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        1
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">2</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">3</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        4
+                        <div class="calendar-dot bg-orange-400 mt-1"></div>
+</button>
+<button class="h-14 w-full text-white text-sm font-bold flex flex-col items-center justify-center">
+<div class="flex size-10 items-center justify-center rounded-lg bg-primary">5</div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        6
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">7</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">8</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">9</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        10
+                        <div class="flex gap-1 mt-1">
+<div class="calendar-dot bg-primary"></div>
+<div class="calendar-dot bg-emerald-400"></div>
+</div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">11</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">12</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">13</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">14</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        15
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">16</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">17</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        18
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">19</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">20</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">21</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        22
+                        <div class="calendar-dot bg-purple-400 mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">23</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">24</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        25
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">26</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">27</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">28</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center relative">
+                        29
+                        <div class="calendar-dot bg-primary mt-1"></div>
+</button>
+<button class="h-14 w-full text-slate-900 dark:text-white text-sm font-medium flex flex-col items-center justify-center">30</button>
+</div>
+</div>
+<!-- Events List -->
+<div class="mt-4 border-t border-slate-100 dark:border-slate-800">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight px-4 py-4">Events for Sep 5</h3>
+<div class="space-y-1">
+<!-- Event Item 1 -->
+<div class="flex items-center gap-4 bg-transparent px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+<div class="flex items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0 size-12">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div class="flex-1">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Product Sync</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">10:00 AM - 11:30 AM</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+</div>
+<!-- Event Item 2 -->
+<div class="flex items-center gap-4 bg-transparent px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+<div class="flex items-center justify-center rounded-xl bg-orange-400/10 text-orange-400 shrink-0 size-12">
+<span class="material-symbols-outlined">videocam</span>
+</div>
+<div class="flex-1">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Design Review</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">2:00 PM - 3:00 PM</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+</div>
+<!-- Event Item 3 -->
+<div class="flex items-center gap-4 bg-transparent px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+<div class="flex items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-400 shrink-0 size-12">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div class="flex-1">
+<p class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Team Lunch</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">12:30 PM - 1:30 PM</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<!-- 3-Tab Navigation System -->
+<nav class="absolute bottom-0 left-0 right-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-6 pb-6 pt-2 flex justify-between items-center z-20">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined font-bold">calendar_month</span>
+<span class="text-[10px] font-bold">Calendar</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="text-[10px] font-medium">Agenda</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</button>
+</nav>
+<!-- Subtle side drawer indicator (visual only) -->
+<div class="hidden absolute top-0 left-0 h-full w-64 bg-background-light dark:bg-background-dark shadow-2xl z-50 border-r border-slate-200 dark:border-slate-800 p-6 flex-col">
+<h1 class="text-2xl font-bold mb-8">Menu</h1>
+<div class="space-y-4">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">person</span>
+<span class="font-semibold">Profile</span>
+</div>
+<div class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-semibold">Settings</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

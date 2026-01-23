@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Side Navigation Drawer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
+<div class="relative flex min-h-screen w-full flex-col overflow-hidden max-w-[430px] mx-auto bg-background-light dark:bg-background-dark shadow-2xl">
+<!-- Background Home Screen (Underlay) -->
+<div class="flex flex-col w-full h-full opacity-50 pointer-events-none">
+<!-- Top App Bar -->
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="flex size-12 shrink-0 items-center">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Home</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex h-12 w-12 items-center justify-center rounded-lg bg-transparent">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+</div>
+</div>
+<!-- Content Placeholder -->
+<div class="px-4 py-2">
+<div class="h-40 w-full rounded-xl bg-slate-200 dark:bg-slate-800 mb-6 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5"></div>
+</div>
+<h3 class="text-lg font-bold px-1 mb-4">Recent Activity</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-white dark:bg-[#1a2233] p-3 rounded-xl">
+<div class="size-12 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+<div class="flex-1 space-y-2">
+<div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded"></div>
+<div class="h-3 w-3/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-[#1a2233] p-3 rounded-xl">
+<div class="size-12 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+<div class="flex-1 space-y-2">
+<div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded"></div>
+<div class="h-3 w-3/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Semi-transparent Dim Overlay -->
+<div class="absolute inset-0 z-40 bg-black/60 backdrop-blur-[2px]"></div>
+<!-- Side Navigation Drawer -->
+<div class="absolute left-0 top-0 z-50 h-full w-[85%] bg-background-light dark:bg-[#111722] shadow-2xl flex flex-col">
+<!-- Account Profile Header -->
+<div class="p-6 pt-12 flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<div class="size-16 rounded-full overflow-hidden border-2 border-primary/20 bg-cover bg-center" data-alt="User profile circular portrait photo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBJdZT6d-NjwEYTWe0qdA3X9-Khb1LQcuYymTYSopHK5s_00KNX_4_FZjTfExVdLuO6wlEg_OYUihN1AQJHFM49PcIXbrvPBEvwiODURS622ilYyMoe6Ux38jR04SyD0lIVvNUKeFL6uE8dyuH58umPr5G2aK9zbF-nAOQfhDlhdtON6FSUC_O1hVGRl-5oGAil2gzg4rZe_XxcfBjf3LCubDQoC3v-fZxcarliWiQOt_w6FbMaDUchGodfD3bX_rTidF-eG5MxBR8')">
+</div>
+<div class="flex flex-col">
+<p class="text-xl font-bold leading-tight tracking-tight">John Doe</p>
+<p class="text-sm text-slate-500 dark:text-[#92a4c9]">john.doe@example.com</p>
+</div>
+</div>
+<button class="bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-semibold w-fit hover:bg-primary/20 transition-colors">
+                    View Profile
+                </button>
+</div>
+<!-- Navigation Items -->
+<div class="flex-1 px-4 py-6 overflow-y-auto">
+<ul class="flex flex-col gap-2">
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 bg-primary text-white">
+<span class="material-symbols-outlined fill-icon">home</span>
+<p class="text-base font-semibold truncate">Home</p>
+</li>
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 text-slate-600 dark:text-[#92a4c9] hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined">mail</span>
+<p class="text-base font-semibold truncate">Messages</p>
+<span class="ml-auto bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold">12</span>
+</li>
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 text-slate-600 dark:text-[#92a4c9] hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined">trending_up</span>
+<p class="text-base font-semibold truncate">Activity</p>
+</li>
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 text-slate-600 dark:text-[#92a4c9] hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+<p class="text-base font-semibold truncate">Saved Items</p>
+</li>
+</ul>
+<div class="my-6 border-t border-slate-200 dark:border-slate-800"></div>
+<ul class="flex flex-col gap-2">
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 text-slate-600 dark:text-[#92a4c9] hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-base font-semibold truncate">Settings</p>
+</li>
+<!-- Theme Toggle Section -->
+<li class="flex h-12 items-center gap-4 rounded-xl px-4 text-slate-600 dark:text-[#92a4c9]">
+<span class="material-symbols-outlined">dark_mode</span>
+<p class="text-base font-semibold truncate flex-1">Dark Mode</p>
+<div class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<span class="translate-x-6 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Drawer Footer -->
+<div class="p-6 border-t border-slate-200 dark:border-slate-800">
+<button class="flex h-12 w-full items-center gap-4 rounded-xl px-4 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<p class="text-base font-semibold">Sign Out</p>
+</button>
+<p class="text-[10px] text-center text-slate-400 dark:text-slate-600 mt-4">Version 2.4.1 (2024)</p>
+</div>
+</div>
+<!-- Bottom Navigation Bar (iOS Style) -->
+<div class="absolute bottom-0 z-[60] w-full bg-white/80 dark:bg-[#111722]/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 pb-8 pt-2">
+<div class="flex justify-around items-center h-12">
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-icon text-[28px]">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[28px]">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[28px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</div>
+</div>
+<!-- Home Indicator -->
+<div class="flex justify-center mt-2">
+<div class="h-1 w-32 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+</div>
+</div>
+</div>
+</body></html>
