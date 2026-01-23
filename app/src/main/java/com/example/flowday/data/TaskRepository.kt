@@ -62,7 +62,8 @@ class TaskRepository @Inject constructor(
 
     // Manual Sync function called on Login
     suspend fun syncTasksFromFirestore() {
-        auth.currentUser?.let { user ->
+        val user = auth.currentUser
+        if (user != null) {
             try {
                 val snapshot = firestore.collection("users").document(user.uid)
                     .collection("tasks").get().await()
