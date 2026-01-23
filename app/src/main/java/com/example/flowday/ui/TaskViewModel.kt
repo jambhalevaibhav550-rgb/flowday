@@ -83,11 +83,25 @@ class TaskViewModel @Inject constructor(
         executionTime: Long
     ) {
         viewModelScope.launch {
+            // Combine _selectedDate (Year/Month/Day) with executionTime (Hour/Minute)
+            val selectedCalendar = java.util.Calendar.getInstance()
+            selectedCalendar.timeInMillis = _selectedDate.value
+            
+            val timeCalendar = java.util.Calendar.getInstance()
+            timeCalendar.timeInMillis = executionTime
+            
+            selectedCalendar.set(java.util.Calendar.HOUR_OF_DAY, timeCalendar.get(java.util.Calendar.HOUR_OF_DAY))
+            selectedCalendar.set(java.util.Calendar.MINUTE, timeCalendar.get(java.util.Calendar.MINUTE))
+            selectedCalendar.set(java.util.Calendar.SECOND, 0)
+            selectedCalendar.set(java.util.Calendar.MILLISECOND, 0)
+
+            val finalExecutionTime = selectedCalendar.timeInMillis
+
             val task = Task(
                 name = name,
                 date = _selectedDate.value, // Use selected date
                 validity = if (recurrenceType == "NONE") "One Time" else recurrenceType, // Simple validity text
-                executionTime = executionTime,
+                executionTime = finalExecutionTime,
                 recurrenceType = recurrenceType,
                 recurrenceDays = recurrenceDays,
                 validUntil = validUntil,
