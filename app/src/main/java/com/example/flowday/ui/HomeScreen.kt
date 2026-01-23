@@ -35,8 +35,6 @@ import androidx.compose.foundation.combinedClickable
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
-@Composable
 fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     val selectedDate by viewModel.selectedDate.collectAsState()
