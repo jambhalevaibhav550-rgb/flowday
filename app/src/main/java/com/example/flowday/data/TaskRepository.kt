@@ -14,8 +14,8 @@ import kotlinx.coroutines.withContext
 class TaskRepository @Inject constructor(
     private val taskDao: TaskDao
 ) {
-    private val firestore = com.google.firebase.ktx.Firebase.firestore
-    private val auth = com.google.firebase.auth.ktx.auth
+    private val firestore = Firebase.firestore
+    private val auth = Firebase.auth
 
     val allTasks: Flow<List<Task>> = taskDao.getAllTasks()
 
