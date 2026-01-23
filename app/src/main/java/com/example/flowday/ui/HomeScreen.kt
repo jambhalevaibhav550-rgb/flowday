@@ -52,9 +52,9 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
         tasks.groupBy { dateFormat.format(Date(it.date)) }
     }
     
-    // Get unique dates (sorted)
-    val availableDates = remember(groupedTasks) {
-        groupedTasks.keys.sorted().ifEmpty { listOf(todayString) }
+    // Get unique dates (sorted), ensuring selectedDate is always included
+    val availableDates = remember(groupedTasks, selectedDateString) {
+        (groupedTasks.keys + selectedDateString + todayString).toSet().sorted()
     }
 
     // Filter tasks for selected date
