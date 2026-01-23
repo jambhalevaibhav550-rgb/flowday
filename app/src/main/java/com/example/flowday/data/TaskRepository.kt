@@ -61,7 +61,7 @@ class TaskRepository @Inject constructor(
 
 
     // Manual Sync function called on Login
-    suspend fun syncTasksFromFirestore() = withContext(Dispatchers.IO) {
+    suspend fun syncTasksFromFirestore() {
         auth.currentUser?.let { user ->
             try {
                 val snapshot = firestore.collection("users").document(user.uid)
@@ -69,7 +69,7 @@ class TaskRepository @Inject constructor(
                 
                 val remoteTasks = snapshot.toObjects(Task::class.java)
                 for (task in remoteTasks) {
-                taskDao.insertTask(task)
+                    taskDao.insertTask(task)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
