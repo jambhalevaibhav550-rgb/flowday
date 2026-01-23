@@ -59,7 +59,7 @@ fun StatisticScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> U
     
     // Completion Status Logic
     val totalTasks = filteredTasks.size
-    val completedTasks = filteredTasks.count { it.isCompleted }
+    val completedTasks = filteredTasks.count { it.status == 1 }
     val completionPercentage = if (totalTasks > 0) (completedTasks.toFloat() / totalTasks * 100).toInt() else 0
 
     Scaffold(
