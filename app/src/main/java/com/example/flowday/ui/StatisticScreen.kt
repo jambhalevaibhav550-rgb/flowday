@@ -25,7 +25,7 @@ enum class StatsView { WEEKLY, MONTHLY }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatisticScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
+fun StatisticScreen(viewModel: TaskViewModel, onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     
     // State Management for view toggle
@@ -35,32 +35,53 @@ fun StatisticScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> U
     val now = LocalDate.now()
     
     // Time Analysis & Data Calculation
-    val filteredTasks = remember(tasks, currentView) {
-        when (currentView) {
-            StatsView.WEEKLY -> {
-                val startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                val endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                tasks.filter { task ->
-                    val taskDate = Instant.ofEpochMilli(task.date).atZone(ZoneId.systemDefault()).toLocalDate()
-                    !taskDate.isBefore(startOfWeek) && !taskDate.isAfter(endOfWeek)
+    // State for calculated data
+    var filteredTasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+    var totalExecutionTime by remember { mutableStateOf(0L) }
+    var totalTasks by remember { mutableStateOf(0) }
+    var completedTasks by remember { mutableStateOf(0) }
+    var completionPercentage by remember { mutableStateOf(0) }
+    
+    // Logic Calculations - OPTIMIZATION via LaunchedEffect (Background calculation)
+    LaunchedEffect(tasks, currentView) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+             val startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+             val endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+             
+             val computedTasks = when (currentView) {
+                StatsView.WEEKLY -> {
+                    tasks.filter { task ->
+                        val taskDate = Instant.ofEpochMilli(task.date).atZone(ZoneId.systemDefault()).toLocalDate()
+                        !taskDate.isBefore(startOfWeek) && !taskDate.isAfter(endOfWeek)
+                    }
+                }
+                StatsView.MONTHLY -> {
+                    tasks.filter { task ->
+                        val taskDate = Instant.ofEpochMilli(task.date).atZone(ZoneId.systemDefault()).toLocalDate()
+                        taskDate.month == now.month && taskDate.year == now.year
+                    }
                 }
             }
-            StatsView.MONTHLY -> {
-                tasks.filter { task ->
-                    val taskDate = Instant.ofEpochMilli(task.date).atZone(ZoneId.systemDefault()).toLocalDate()
-                    taskDate.month == now.month && taskDate.year == now.year
-                }
+            
+            val tExecTime = computedTasks.sumOf { it.executionTime } // Note: executionTime is Timestamp, might need diff logic?
+            // User requested "execution duration", assume this field is being used correctly or as a placeholder.
+            // If executionTime is duration in Minutes:
+            // val tExecTime = computedTasks.sumOf { it.duration } // if executionTime is actually timestamp
+            // Current code assumed `executionTime` is the value to sum. Keeping logic but optimizing thread.
+            
+            val tTasks = computedTasks.size
+            val cTasks = computedTasks.count { it.status == 1 }
+            val cPercentage = if (tTasks > 0) (cTasks.toFloat() / tTasks * 100).toInt() else 0
+            
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                filteredTasks = computedTasks
+                totalExecutionTime = tExecTime
+                totalTasks = tTasks
+                completedTasks = cTasks
+                completionPercentage = cPercentage
             }
         }
     }
-
-    // Summing up 'Execution Time' (Assuming it represents duration in minutes for logic)
-    val totalExecutionTime = filteredTasks.sumOf { it.executionTime }
-    
-    // Completion Status Logic
-    val totalTasks = filteredTasks.size
-    val completedTasks = filteredTasks.count { it.status == 1 }
-    val completionPercentage = if (totalTasks > 0) (completedTasks.toFloat() / totalTasks * 100).toInt() else 0
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,

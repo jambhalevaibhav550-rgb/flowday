@@ -1,0 +1,77 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:generateDebugResValues FROM-CACHE
+> Task :app:checkDebugAarMetadata
+> Task :app:processDebugGoogleServices FROM-CACHE
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources FROM-CACHE
+> Task :app:packageDebugResources FROM-CACHE
+> Task :app:parseDebugLocalResources FROM-CACHE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug FROM-CACHE
+> Task :app:processDebugMainManifest FROM-CACHE
+> Task :app:processDebugManifest FROM-CACHE
+> Task :app:processDebugManifestForPackage FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :app:javaPreCompileDebug FROM-CACHE
+> Task :app:mergeDebugShaders FROM-CACHE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets FROM-CACHE
+> Task :app:compressDebugAssets FROM-CACHE
+> Task :app:desugarDebugFileDependencies FROM-CACHE
+> Task :app:mergeDebugJniLibFolders FROM-CACHE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:checkDebugDuplicateClasses
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeExtDexDebug FROM-CACHE
+> Task :app:mergeLibDexDebug FROM-CACHE
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/data/TaskRepository.kt:50:33 Parameter 'user' is never used, could be renamed to _
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/data/TaskRepository.kt:96:28 Parameter 'uid' is never used, could be renamed to _
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/data/TaskRepository.kt:114:21 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/CalendarScreen.kt:201:9 Variable 'lastDayOfMonth' is never used
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/CalendarScreen.kt:205:9 Variable 'totalGridCells' is never used
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/HomeScreen.kt:239:17 'CircularProgressIndicator(Float, Modifier = ..., Color = ..., Dp = ..., Color = ..., StrokeCap = ...): Unit' is deprecated. Use the overload that takes `progress` as a lambda
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/HomeScreen.kt:245:17 'CircularProgressIndicator(Float, Modifier = ..., Color = ..., Dp = ..., Color = ..., StrokeCap = ...): Unit' is deprecated. Use the overload that takes `progress` as a lambda
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/MainApp.kt:167:30 Unnecessary safe call on a non-null receiver of type UserData?
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/MainApp.kt:197:36 'Login: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Login
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/MainApp.kt:204:9 'Divider(Modifier = ..., Dp = ..., Color = ...): Unit' is deprecated. Renamed to HorizontalDivider
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/MainApp.kt:235:9 'Divider(Modifier = ..., Dp = ..., Color = ...): Unit' is deprecated. Renamed to HorizontalDivider
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/MainApp.kt:265:36 'Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/StatisticScreen.kt:253:13 'LinearProgressIndicator(Float, Modifier = ..., Color = ..., Color = ..., StrokeCap = ...): Unit' is deprecated. Use the overload that takes `progress` as a lambda
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskAddDialog.kt:28:5 Parameter 'initialDate' is never used
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:105:30 'signOut(): Task<Void!>' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:126:68 'BeginSignInResult' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:128:74 'BeginSignInRequest' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:128:93 'Builder' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:130:62 'BeginSignInRequest' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:130:81 'GoogleIdTokenRequestOptions' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:139:26 'beginSignIn(BeginSignInRequest): Task<BeginSignInResult!>' is deprecated. Deprecated in Java
+w: file:///A:/flowday%20projat/app/src/main/java/com/example/flowday/ui/TaskViewModel.kt:149:43 'getSignInCredentialFromIntent(Intent?): SignInCredential' is deprecated. Deprecated in Java
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:hiltAggregateDepsDebug FROM-CACHE
+> Task :app:hiltJavaCompileDebug
+> Task :app:processDebugJavaRes
+> Task :app:transformDebugClassesWithAsm
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:mergeDebugGlobalSynthetics FROM-CACHE
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 1m 41s
+40 actionable tasks: 20 executed, 20 from cache

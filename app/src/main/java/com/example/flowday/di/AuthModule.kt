@@ -2,7 +2,6 @@ package com.example.flowday.di
 
 import android.content.Context
 import com.example.flowday.R
-import com.example.flowday.sign_in.GoogleAuthClient
 import com.google.android.gms.auth.api.identity.Identity
 import dagger.Module
 import dagger.Provides
@@ -19,13 +18,10 @@ object AuthModule {
     @Provides
     @Singleton
     @AuthClientQualifier
-    fun provideGoogleAuthClient(
+    fun provideSignInClient(
         @ApplicationContext context: Context
-    ): GoogleAuthClient {
-        return GoogleAuthClient(
-            context = context,
-            oneTapClient = Identity.getSignInClient(context)
-        )
+    ): com.google.android.gms.auth.api.identity.SignInClient {
+        return Identity.getSignInClient(context)
     }
 }
 

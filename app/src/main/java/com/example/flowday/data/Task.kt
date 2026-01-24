@@ -5,11 +5,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "tasks")
 data class Task(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val name: String,
-    val date: Long, // Creation timestamp
-    val validity: String, // Description text (e.g., "Valid until...")
-    val executionTime: Long, // Time of day (HH:mm) stored as timestamp/epoch
+    @PrimaryKey val id: String = java.util.UUID.randomUUID().toString(),
+    val name: String = "",
+    val date: Long = 0L, // Creation timestamp
+    val validity: String = "", // Description text (e.g., "Valid until...")
+    val executionTime: Long = 0L, // Time of day (HH:mm) stored as timestamp/epoch
     val status: Int = 0, // 0 = Active, 1 = Completed, 2 = Failed, 3 = CarryForward
     val userId: String? = null, // For Firebase syncing
     

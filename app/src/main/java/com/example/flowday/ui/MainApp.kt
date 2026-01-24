@@ -16,13 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flowday.ui.TaskViewModel
+import androidx.compose.runtime.collectAsState
 
 enum class AppScreen { HOME, CALENDAR, STATS }
 enum class AppTheme { DEFAULT, DARK, GREEN }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainApp() {
+fun MainApp(
+    viewModel: TaskViewModel = viewModel()
+) {
     // Global States
     var currentTheme by remember { mutableStateOf(AppTheme.DEFAULT) }
     var currentScreen by remember { mutableStateOf(AppScreen.HOME) }
@@ -68,7 +73,8 @@ fun MainApp() {
                     DrawerContent(
                         currentTheme = currentTheme,
                         onThemeSelected = { currentTheme = it },
-                        onClose = { scope.launch { drawerState.close() } }
+                        onClose = { scope.launch { drawerState.close() } },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -83,9 +89,9 @@ fun MainApp() {
             ) { padding ->
                 Box(modifier = Modifier.padding(padding)) {
                     when (currentScreen) {
-                        AppScreen.HOME -> HomeScreen(onMenuClick = { scope.launch { drawerState.open() } })
-                        AppScreen.CALENDAR -> CalendarScreen(onMenuClick = { scope.launch { drawerState.open() } })
-                        AppScreen.STATS -> StatisticScreen(onMenuClick = { scope.launch { drawerState.open() } })
+                        AppScreen.HOME -> HomeScreen(viewModel = viewModel, onMenuClick = { scope.launch { drawerState.open() } })
+                        AppScreen.CALENDAR -> CalendarScreen(viewModel = viewModel, onMenuClick = { scope.launch { drawerState.open() } })
+                        AppScreen.STATS -> StatisticScreen(viewModel = viewModel, onMenuClick = { scope.launch { drawerState.open() } })
                     }
                 }
             }
@@ -97,7 +103,8 @@ fun MainApp() {
 fun DrawerContent(
     currentTheme: AppTheme,
     onThemeSelected: (AppTheme) -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    viewModel: TaskViewModel
 ) {
     // Auth State from ViewModel (Assuming access to VM is propagated or we use Hilt here also)
     // To keep it simple in this architecture, we might need to pass the Login Action or VM up.
@@ -118,33 +125,19 @@ fun DrawerContent(
     
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
-    // We need the `googleAuthClient` here.
-    // Since we created `AuthModule`, we can try to get it.
-    // But getting it inside Composable is hard without `hiltViewModel`.
-    // Let's assume we can instantiate it for now or use EntryPoint.
     
-    // For specific user request "Implement the real GoogleSignInClient":
-    val googleAuthClient = remember { 
-        com.example.flowday.sign_in.GoogleAuthClient(
-            context, 
-            com.google.android.gms.auth.api.identity.Identity.getSignInClient(context)
-        )
-    }
-
-    var user by remember { mutableStateOf(googleAuthClient.getSignedInUser()) }
+    val signInState by viewModel.signInState.collectAsState()
+    val user = signInState.userData
     
     val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult(),
         onResult = { result ->
             if (result.resultCode == android.app.Activity.RESULT_OK) {
                 scope.launch {
-                    val signInResult = googleAuthClient.signInWithIntent(
-                        intent = result.data ?: return@launch
-                    )
-                    user = signInResult.data
-                    // Here we should also notify ViewModel to sync!
-                    // Since we don't have VM passed here, we might miss the Sync trigger.
-                    // Ideally MainApp passes a callback `onLoginSuccess`.
+                    val intent = result.data
+                    if (intent != null) {
+                         viewModel.handleSignInResult(intent)
+                    }
                 }
             }
         }
@@ -181,11 +174,11 @@ fun DrawerContent(
                 onClick = { 
                     scope.launch {
                         try {
-                            val signInIntentSender = googleAuthClient.signIn()
-                            if (signInIntentSender.intentSender != null) {
+                            val signInResult = viewModel.signIn()
+                            if (signInResult != null) {
                                 launcher.launch(
                                     androidx.activity.result.IntentSenderRequest.Builder(
-                                        signInIntentSender.intentSender
+                                        signInResult.pendingIntent.intentSender
                                     ).build()
                                 )
                             } else {
@@ -261,8 +254,7 @@ fun DrawerContent(
             Button(
                 onClick = { 
                     scope.launch {
-                        googleAuthClient.signOut()
-                        user = null
+                        viewModel.signOut()
                         onClose() 
                     }
                 },

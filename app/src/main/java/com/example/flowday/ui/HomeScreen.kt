@@ -35,9 +35,10 @@ import androidx.compose.foundation.combinedClickable
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
+fun HomeScreen(viewModel: TaskViewModel, onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     val selectedDate by viewModel.selectedDate.collectAsState()
+    val signInState by viewModel.signInState.collectAsState()
     
     // Date Logic
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
@@ -71,19 +72,47 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
     val progress = if (todayTotal > 0) todayCompleted.toFloat() / todayTotal else 0f
     
     var showAddDialog by remember { mutableStateOf(false) }
+    var showProfileMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Welcome, User", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                title = { 
+                    Text(
+                        text = "Welcome, ${signInState.userData?.username?.split(" ")?.firstOrNull() ?: "Guest"}", 
+                        fontSize = 18.sp, 
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    Box {
+                        IconButton(onClick = { showProfileMenu = true }) {
+                            Icon(Icons.Default.Person, contentDescription = "Profile")
+                        }
+                        DropdownMenu(
+                            expanded = showProfileMenu,
+                            onDismissRequest = { showProfileMenu = false }
+                        ) {
+                             if (signInState.userData != null) {
+                                DropdownMenuItem(
+                                    text = { Text("Logout") },
+                                    onClick = {
+                                        viewModel.signOut()
+                                        showProfileMenu = false
+                                    }
+                                )
+                             } else {
+                                 DropdownMenuItem(
+                                    text = { Text("Not Logged In") },
+                                    onClick = { showProfileMenu = false }
+                                )
+                             }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -117,7 +146,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp)
             ) {
-                items(availableDates) { dateString ->
+                items(items = availableDates, key = { it }) { dateString ->
                     val isSelected = dateString == selectedDateString
                     val dateObj = try { dateFormat.parse(dateString) } catch(e: Exception) { Date() }
                     
@@ -182,9 +211,10 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) 
     
     if (showAddDialog) {
         TaskAddDialog(
+            initialDate = selectedDate,
             onDismiss = { showAddDialog = false },
-            onSave = { name, recurrenceType, recurrenceDays, validUntil, executionTime ->
-                viewModel.addTask(name, recurrenceType, recurrenceDays, validUntil, executionTime)
+            onSave = { name, recurrenceType, recurrenceDays, validUntil, executionTime, taskDate ->
+                viewModel.addTask(name, recurrenceType, recurrenceDays, validUntil, executionTime, taskDate)
                 showAddDialog = false
             }
         )

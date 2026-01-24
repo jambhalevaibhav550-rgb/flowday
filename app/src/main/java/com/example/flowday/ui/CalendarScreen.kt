@@ -28,12 +28,24 @@ import java.time.format.TextStyle
 import java.util.*
 
 @Composable
-fun CalendarScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Unit) {
+fun CalendarScreen(viewModel: TaskViewModel, onMenuClick: () -> Unit) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
+    // OPTIMIZATION: Collect pre-calculated dots
+    val calendarDots by viewModel.calendarDots.collectAsState(initial = emptySet())
     
     // logic handling variables as requested
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    val selectedDateMillis by viewModel.selectedDate.collectAsState()
+    val selectedDate = remember(selectedDateMillis) {
+        Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+    }
+    
+    var currentMonth by remember { mutableStateOf(YearMonth.from(selectedDate)) }
+    val today = remember { LocalDate.now() }
+
+    // Jump to the new month when a date is selected (programmatically or manually)
+    LaunchedEffect(selectedDate) {
+        currentMonth = YearMonth.from(selectedDate)
+    }
     
     // Date formatters
     val monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
@@ -84,10 +96,11 @@ fun CalendarScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Un
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                IconButton(onClick = { }) {
+                // Today Button
+                IconButton(onClick = { viewModel.setSelectedDate(System.currentTimeMillis()) }) {
                     Icon(
-                        Icons.Default.AddCircle,
-                        contentDescription = "Add",
+                        Icons.Default.Today,
+                        contentDescription = "Today",
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -101,12 +114,16 @@ fun CalendarScreen(viewModel: TaskViewModel = viewModel(), onMenuClick: () -> Un
             CalendarGrid(
                 currentMonth = currentMonth,
                 selectedDate = selectedDate,
-                onDateSelected = { selectedDate = it },
-                tasks = tasks
+                today = today,
+                onDateSelected = { date ->
+                    val millis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    viewModel.setSelectedDate(millis)
+                },
+                calendarDots = calendarDots
             )
             
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = MaterialTheme.colorScheme.surfaceVariant)
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             
             // Events List Section
             Text(
@@ -158,29 +175,10 @@ fun CalendarHeaderView() {
 fun CalendarGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
+    today: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    tasks: List<Task>
+    calendarDots: Set<LocalDate> // OPTIMIZATION: Use Set for O(1) lookup
 ) {
-    // Helper function to check if a task occurs on a specific date (duplicated for scope, or move to wider scope)
-    fun isTaskScheduledOnDate(task: Task, date: LocalDate): Boolean {
-        val taskStartDate = Instant.ofEpochMilli(task.date).atZone(ZoneId.systemDefault()).toLocalDate()
-        val validUntilDate = Instant.ofEpochMilli(task.validUntil).atZone(ZoneId.systemDefault()).toLocalDate()
-
-        if (date.isBefore(taskStartDate) || date.isAfter(validUntilDate)) {
-            return false
-        }
-
-        return when (task.recurrenceType) {
-            "DAILY" -> true
-            "WEEKLY" -> {
-                val dayOfWeek = date.dayOfWeek.value
-                task.recurrenceDays.split(",").contains(dayOfWeek.toString())
-            }
-            "MONTHLY" -> taskStartDate.dayOfMonth == date.dayOfMonth
-            else -> taskStartDate == date
-        }
-    }
-
     val firstDayOfMonth = currentMonth.atDay(1)
     val lastDayOfMonth = currentMonth.atEndOfMonth()
     
@@ -197,6 +195,7 @@ fun CalendarGrid(
                     
                     val isCurrentMonth = dateInCell.month == currentMonth.month
                     val isSelected = dateInCell == selectedDate
+                    val isToday = dateInCell == today
                     
                     Box(
                         modifier = Modifier
@@ -208,34 +207,54 @@ fun CalendarGrid(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
-                                    .background(
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                        shape = RoundedCornerShape(8.dp)
-                                    ),
+                                    .size(36.dp),
                                 contentAlignment = Alignment.Center
                             ) {
+                                // 1. Today Highlight (Persistent Soft Green)
+                                if (isToday) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                color = Color(0xFFE8F5E9), // Light Green
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                    )
+                                }
+
+                                // 2. Selection Highlight (Dark Blue overlay)
+                                if (isSelected) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                    )
+                                }
+
                                 Text(
                                     text = dateInCell.dayOfMonth.toString(),
                                     fontSize = 14.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
                                     color = when {
                                         isSelected -> MaterialTheme.colorScheme.onPrimary
+                                        isToday -> Color(0xFF2E7D32) // Dark Green text for Today
                                         isCurrentMonth -> MaterialTheme.colorScheme.onBackground
                                         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                     }
                                 )
                             }
-                            // Dot logic: check if any tasks exist for this date
-                            val hasTasks = tasks.any { task ->
-                                isTaskScheduledOnDate(task, dateInCell)
-                            }
-                            if (hasTasks && !isSelected) {
+                            // Dot logic: O(1) Lookup
+                            // Note: Recurrence logic for dots is simplified here to only show explicit task dates
+                            // as pre-calculated in ViewModel for performance.
+                            if (dateInCell in calendarDots) {
                                 Box(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
                                         .size(4.dp)
-                                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                        .background(if(isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary, CircleShape)
                                 )
                             }
                         }
