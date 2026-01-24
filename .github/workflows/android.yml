@@ -34,6 +34,9 @@ jobs:
          echo "First 10 lines of JSON:"
          head -n 10 app/google-services.json
 
+    - name: Print SHA-1 Fingerprint
+      run: ./gradlew signingReport
+
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
